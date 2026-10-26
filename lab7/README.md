@@ -28,9 +28,9 @@ pseudocode, and practice traces. The current sections cover:
 | `string_search.py` | Fill in the four implementation TODOs |
 | `lab_checks.py` | Provided automated checks; do not edit |
 
-- [ ] Part 1: Trace and implement naive search.
-- [ ] Part 2: Trace, implement, and analyze Rabin–Karp.
-- [ ] Part 3: Trace the prefix table and matcher, implement KMP, and analyze its running time.
+- [x] Part 1: Trace and implement naive search.
+- [x] Part 2: Trace, implement, and analyze Rabin–Karp.
+- [x] Part 3: Trace the prefix table and matcher, implement KMP, and analyze its running time.
 
 ### Shared conventions
 
@@ -84,9 +84,9 @@ occurs. Record where $j$ stops and whether you add $s$ to the results.
 | Shift `s` | Text indices checked | Final `j` | Append `s`? |
 |---|---|---|---|
 | 1 | `1` | 0 | No |
-| 2 | TODO | TODO | TODO |
-| 4 | TODO | TODO | TODO |
-| 5 | TODO | TODO | TODO |
+| 2 | `2` | 1 | No |
+| 4 | `2` | 2 | No |
+| 5 | `3` | 3 | Yes |
 
 ### 1.2 Implementation
 
@@ -174,9 +174,16 @@ At shift `6`, the hash is `7`; all five characters match, so record `6`.
 1. **Move from shift `6` to `7`.** Which digit leaves the window, and which
    digit enters? Substitute them into the rolling-hash formula and calculate
    the new hash.
+
+3 leaves the window, and 2 enters. 7-3*3 = -2 * 10 = -20 + 2 = -18 mod 13 = 8
+The new hash is 8.
+
 2. **Check shift `12`.** Its hash is `7`, so compare the characters. List the
    text and pattern indices checked before stopping. Is this a match or a
    spurious hit?
+
+  Shift 12 has the text "67399". Since the first item in pattern, 3 != 6, the first element of Shift 12,
+  this is a spurious hit.
 
 ### 2.2 Implementation
 
@@ -203,11 +210,16 @@ hash comparisons and character checks.
 
 | Case | Build hashes | Search | Total |
 |---|---|---|---|
-| Best | TODO | TODO | TODO |
-| Worst | TODO | TODO | TODO |
+| Best | O(m) | O(n+m-1) | O(n) |
+| Worst | O(m) | O((n+m-1)*m) | O(n*m) |
 
 For each case, explain in one sentence how many windows need character checks
 and how many characters are checked in each one.
+
+For the best case, since every window differs from the pattern hash, we only need to perform
+character checks if it hashes exactly to the pattern hash.
+For the worst case, since every window hashes to the same pattern hash, we need to compare
+every single text string to make sure that it is/isn't equal to the pattern string.
 
 ### Connection: Searching for several patterns
 
@@ -301,11 +313,12 @@ The first row is worked: `P[2] == P[4]`, so `k` increases to `3`.
 | Index `j` | Starting `k` | Fallbacks | `pi[j]` |
 |---|---|---|---|
 | 4 | 2 | none | 3 |
-| 5 | 3 | TODO | TODO |
-| 6 | 0 | TODO | TODO |
+| 5 | 3 | 3->1->0 | 0 |
+| 6 | 0 | none | 1 |
 
 Now trace the matcher at `i = 8`, starting with `q = 6`. Which pattern index
 is compared with `T[8]`? What shift is recorded, and what is `q` afterward?
+`P[6] == T[8]`, so q increases to 7.
 
 ### 3.2 Implementation
 
@@ -330,12 +343,18 @@ Give tight bounds in terms of $n$ and $m$.
 
 | Case | Build `pi` | Search | Total |
 |---|---|---|---|
-| Best | TODO | TODO | TODO |
-| Worst | TODO | TODO | TODO |
+| Best | O(m) | O(n) | O(n+m) |
+| Worst | O(m) | O(n) | O(n+m) |
 
 Explain the worst-case bound in a few lines. Across the whole scan, how often
 can `q` increase? How does that limit the number of fallbacks? Use the same
 reasoning for `k` when building `pi`.
+
+Even in the worst case, because we already calculated the prefix_function, which runs m times no matter what,
+we can run the search only n times no matter what. Because we increase q one time in a loop that runs n times,
+q can increase at most by n times. This limits the number of fallbacks because q cannot fall below 0 (so it can
+only fall at most n times). We can use this same reasoning for k because k also cannot fall below 0 (so it can 
+only fall at most m times). 
 
 ---
 
